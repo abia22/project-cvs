@@ -3,13 +3,21 @@ package task1;
 /**
  * Represents a sequence of Counter objects.
  */
-public class CounterSequence {
+public class CounterSequence
+{
+    private Counter[] sequence;
+    private int length;
+
 
     /**
      * Create a sequence of Counter objects with the specified capacity.
      * @param cap The capacity of the sequence of Counters: must be non negative.
      */
-    public CounterSequence(int cap) {  }
+    public CounterSequence(int cap)
+    {
+        this.sequence = new Counter[cap];
+        this.length = 0;
+    }
 
     /**
      * Create a sequence that will have as many counters as there are integers in the array
@@ -17,19 +25,31 @@ public class CounterSequence {
      * 
      * @param arr Each integer in the array denotes the upper-limit of the corresponding counter in sequence.
      */
-    public CounterSequence(int[] arr) {  }
+    public CounterSequence(int[] arr)
+    {
+        this(arr.length);
+
+        for (int limit : arr)
+            addCounter(limit);
+    }
 
     /**
      * Get the current number of counters.
      * @return the current number of counters.
      */
-    public int length() { return 0; }
+    public int length()
+    {
+        return this.length;
+    }
 
     /**
      * Get the capacity of the sequence.
      * @return the capacity of the sequence.
      */
-    public int capacity() { return 0; }
+    public int capacity()
+    {
+        return this.sequence.length;
+    }
 
     /**
      * Get the value of the counter is position i of the sequence.
@@ -38,7 +58,10 @@ public class CounterSequence {
      * 
      * @return the value of the counter is position i of the sequence.
      */
-    public int getCounter(int i) { return 0; }
+    public int getCounter(int i)
+    {
+        return this.sequence[i].getVal();
+    }
 
     /**
      * Appends a new counter to the end of the sequence with upper-limit given by the parameter limit,
@@ -48,7 +71,12 @@ public class CounterSequence {
      * @param limit The limit of the new counter: must be greater than 0.
      * @return the index of the added counter.
      */
-    public int addCounter(int limit) {return 0; }
+    public int addCounter(int limit)
+    {
+        this.sequence[this.length] = new Counter(0, limit);
+
+        return this.length++;
+    }
 
     /**
      * Remove the counter at the given index of the sequence.
@@ -57,7 +85,11 @@ public class CounterSequence {
      * 
      * @param pos The position of the counter in the sequence to remove: must be between 0 and {@link #length()} (exclusive).
      */
-    public void remCounter(int pos) {  }
+    public void remCounter(int pos)
+    {
+        this.sequence[pos] = this.sequence[--this.length];
+        this.sequence[this.length] = null;
+    }
 
     /**
      * Remove the counter at the given index of the sequence.
@@ -66,7 +98,13 @@ public class CounterSequence {
      * 
      * @param pos The position of the counter in the sequence to remove: must be between 0 and {@link #length()} (exclusive).
      */
-    public void remCounterPO(int pos) {  }
+    public void remCounterPO(int pos)
+    {
+        for (int i = pos + 1; i < this.length; i++)
+            this.sequence[i - 1] = this.sequence[i];
+
+        this.sequence[--this.length] = null;
+    }
 
     /**
      * Increment the value of the counter by val in the given position of the sequence.
@@ -74,7 +112,10 @@ public class CounterSequence {
      * @param i The position of the counter in the sequence: must be between 0 and {@link #length()} (exclusive).
      * @param val The value to increment: must be non negative.
      */
-    public void increment(int i, int val) {  }
+    public void increment(int i, int val)
+    {
+        this.sequence[i].incr(val);
+    }
 
     /**
      * Decrement the value of the counter by val in the given position of the sequence.
@@ -82,5 +123,8 @@ public class CounterSequence {
      * @param i The position of the counter in the sequence: must be between 0 and {@link #length()} (exclusive).
      * @param val The value to decrement: must be non negative.
      */
-    public void decrement(int i, int val) {  }
+    public void decrement(int i, int val)
+    {
+        this.sequence[i].decr(val);
+    }
 }
