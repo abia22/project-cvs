@@ -1,5 +1,9 @@
 package task1;
 
+/*@
+    predicate CounterInv(Counter c; int v, int lim, boolean over) = c.val |-> v &*& c.limit |-> lim &*& c.overflow |-> over &*& 0 <= v &*& v < lim;
+@*/
+
 /**
  * A sequential counter.
  */
@@ -8,10 +12,6 @@ public class Counter {
     private int val;
     private int limit;
     private boolean overflow;
-
-    /*@
-    predicate CounterInv(Counter c; int v, int lim, boolean over) = c.val |-> v &*& c.limit |-> lim &*& c.overflow |-> over &*& 0 <= v &*& v < lim;
-    @*/
 
     /**
      * Create a counter with the specified initial value and limit.
