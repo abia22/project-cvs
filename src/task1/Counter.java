@@ -10,7 +10,7 @@ public class Counter {
     private boolean overflow;
 
     /*@
-    predicate CounterInv(int v, int lim, boolean over) = this.val |-> v &*& this.limit |-> lim &*& this.overflow |-> over &*& 0 <= v &*& v < lim;
+    predicate CounterInv(Counter c; int v, int lim, boolean over) = c.val |-> v &*& c.limit |-> lim &*& c.overflow |-> over &*& 0 <= v &*& v < lim;
     @*/
 
     /**
@@ -21,7 +21,7 @@ public class Counter {
      */
     public Counter(int val, int limit)
     //@ requires 0 <= val &*& val < limit &*& limit > 0;
-    //@ ensures CounterInv(val, limit, false);
+    //@ ensures CounterInv(this, val, limit, false);
     {
         this.val = val;
         this.limit = limit;
@@ -33,8 +33,8 @@ public class Counter {
      * @return the current value of the counter.
      */
     public int getVal()
-    //@ requires CounterInv(?value, ?lim, ?over);
-    //@ ensures CounterInv(value, lim, over) &*& result == value;
+    //@ requires CounterInv(this, ?value, ?lim, ?over);
+    //@ ensures CounterInv(this, value, lim, over) &*& result == value;
     { 
         return val; 
     }
@@ -44,8 +44,8 @@ public class Counter {
      * @return the limit of the counter.
      */
     public int getLimit()
-    //@ requires CounterInv(?value, ?lim, ?over);
-    //@ ensures CounterInv(value, lim, over) &*& result == lim;
+    //@ requires CounterInv(this, ?value, ?lim, ?over);
+    //@ ensures CounterInv(this, value, lim, over) &*& result == lim;
     { 
         return limit; 
     }
@@ -57,8 +57,8 @@ public class Counter {
      * @param v The value to increment: must be non negative.
      */
     public void incr(int v)
-    //@ requires CounterInv(?value, ?lim, ?over) &*& v >= 0;
-    //@ ensures ((value + v) >= lim) ? (CounterInv((value + v) % lim, lim, true)) : CounterInv(value + v, lim, over);
+    //@ requires CounterInv(this, ?value, ?lim, ?over) &*& v >= 0;
+    //@ ensures ((value + v) >= lim) ? (CounterInv(this, (value + v) % lim, lim, true)) : CounterInv(this, value + v, lim, over);
     { 
         if(val + v >= limit){
             val = (val + v) % limit;  
@@ -73,8 +73,8 @@ public class Counter {
      * @param v The value to decrement.: must be non negative.
      */
     public void decr(int v)
-    //@ requires CounterInv(?value, ?lim, ?over) &*& v >= 0;
-    //@ ensures (value - v < 0) ? (CounterInv(0, lim, true)) : CounterInv(value - v, lim, over); 
+    //@ requires CounterInv(this, ?value, ?lim, ?over) &*& v >= 0;
+    //@ ensures (value - v < 0) ? (CounterInv(this, 0, lim, true)) : CounterInv(this, value - v, lim, over); 
     { 
         if(val - v < 0) {
             val = 0;
