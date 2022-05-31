@@ -1,5 +1,13 @@
 package task1;
 
+/*@
+predicate CounterP(unit a,Counter c; unit b) = CounterInv(c, ?v, ?lim, ?over) &*& b == unit;
+@*/
+
+/*@
+predicate Positive(unit a, int v; unit n) = v > 0 &*& n == unit;
+@*/
+
 /**
  * Represents a sequence of Counter objects.
  */
@@ -7,13 +15,28 @@ public class CounterSequence
 {
     private Counter[] sequence;
     private int length;
+    private int capacity;
 
+    /*@
+    predicate CounterSeqInv(int l, int c) =
+        this.length |-> l
+        &*& this.capacity |-> c
+        &*& c > 0
+        &*& this.sequence |-> ?counters
+        &*& counters.length = c
+        &*& l >= 0 &*& c >= l
+        &*& array_slice_deep(counters, 0, l, CounterP, unit, _, _)
+        &*& array_slice(counters, l, c,?rest) &*& all_eq(rest, null) == true; 
+    @*/
 
+    
     /**
      * Create a sequence of Counter objects with the specified capacity.
      * @param cap The capacity of the sequence of Counters: must be non negative.
      */
     public CounterSequence(int cap)
+    //@ requires cap > 0
+    //@ ensures CounterSeqInv(0, cap)
     {
         this.sequence = new Counter[cap];
         this.length = 0;
@@ -26,11 +49,17 @@ public class CounterSequence
      * @param arr Each integer in the array denotes the upper-limit of the corresponding counter in sequence.
      */
     public CounterSequence(int[] arr)
+    //@ requires arr != null &*& arr.length > 0 &*& array_slice_deep(arr, 0, arr.length, Positive, unit, _, _)
+    //@ ensures CounterSeqInv(arr.length, arr.length)
     {
         this(arr.length);
 
         for (int limit : arr)
+        //ADICIONAR INVARIANTES
+        {
             addCounter(limit);
+        }
+            
     }
 
     /**
@@ -38,6 +67,8 @@ public class CounterSequence
      * @return the current number of counters.
      */
     public int length()
+    //@ requires CounterSeqInv(?l, ?c)
+    //@ ensures CounterSeqInv(l, c) &*& result == l
     {
         return this.length;
     }
@@ -47,8 +78,10 @@ public class CounterSequence
      * @return the capacity of the sequence.
      */
     public int capacity()
+    //@ requires CounterSeqInv(?l, ?c)
+    //@ ensures CounterSeqInv(l, c) &*& result == c
     {
-        return this.sequence.length;
+        return this.capacity;
     }
 
     /**
@@ -59,6 +92,8 @@ public class CounterSequence
      * @return the value of the counter is position i of the sequence.
      */
     public int getCounter(int i)
+    //@ requires CounterSeqInv(?l, ?c) &*& i >= 0 &*& i < length
+    //@ ensures CounterSeqInv(l, c) &*& result == ???? (nao sei ainda como obter)
     {
         return this.sequence[i].getVal();
     }
