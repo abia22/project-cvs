@@ -57,7 +57,6 @@ public class CounterSequence
         {
             addCounter(arr[i]);
         }
-            
     }
 
     /**
@@ -147,16 +146,23 @@ public class CounterSequence
     //@ requires CounterSeqInv(this, ?l, ?c) &*& pos >= 0 &*& pos < l;
     //@ ensures CounterSeqInv(this, l - 1, c);
     {
-        // de 0 a i - 1 sao counters, de i+1 a length - 1 sao counters.
-        // seq[i] = null
-        for (int i = pos + 1; i < this.length; i++)
+        int length = length();
+        this.sequence[pos] = null;
         
+        for (int i = pos + 1; i < length; i++)
+        /*@
+            invariant i >= pos + 1 &*& i <= l &*& sequence |-> ?counters
+            &*& counters.length == c
+            &*& array_element(counters, i - 1, null)
+            &*& array_slice_deep(counters, 0, i - 1, CounterP, unit, _, _)
+            &*& array_slice_deep(counters, i, l, CounterP, unit, _, _)
+            &*& array_slice(counters, l, c,?rest) &*& all_eq(rest, null) == true;
+        @*/
         {
             this.sequence[i - 1] = this.sequence[i];
             this.sequence[i] = null;
         }
-            
-
+        
         this.sequence[--this.length] = null;
     }
 
