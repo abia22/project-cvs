@@ -1,7 +1,7 @@
 package task1;
 
 /*@
-    predicate CounterInv(Counter c; int v, int lim, boolean over) = c.val |-> v &*& c.limit |-> lim &*& c.overflow |-> over &*& 0 <= v &*& v < lim;
+    predicate CounterInv(Counter c; int v, int lim, boolean over) = c.val |-> v &*& c.limit |-> lim &*& c.overflow |-> over &*& 0 <= v &*& v < lim &*& lim > 0;
 @*/
 
 /**
