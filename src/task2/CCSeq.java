@@ -80,17 +80,47 @@ public class CCSeq
         //@ close [f]CCSeqInv(this);
     }
 
-    /* public void incr(int i, int val)
+    public void incr(int i, int val)
+    //@ requires [?f]CCSeqInv(this) &*& val > 0;
+    //@ ensures [f]CCSeqInv(this);
     {
-        seq.increment(i, val);
+        //@ open [f]CCSeqInv(this);
+        mon.lock();
+
+        //@ open CounterSeq_shared_state(this)();
+        //@ open CounterSeqInv(seq, ?l, ?c);
+	    int length = seq.length();
+
+        if(i >= 0 && i < length)
+            seq.increment(i, val);
+
+        //@ close CounterSeq_shared_state(this)();
+            
+        mon.unlock();
+        //@ close [f]CCSeqInv(this);
     }
 
     public void decr(int i, int val)
+    //@ requires [?f]CCSeqInv(this) &*& val > 0;
+    //@ ensures [f]CCSeqInv(this);
     {
-        seq.decrement(i, val);
+        //@ open [f]CCSeqInv(this);
+        mon.lock();
+
+        //@ open CounterSeq_shared_state(this)();
+        //@ open CounterSeqInv(seq, ?l, ?c);
+	    int length = seq.length();
+
+        if(i >= 0 && i < length)
+            seq.decrement(i, val);
+
+        //@ close CounterSeq_shared_state(this)();
+            
+        mon.unlock();
+        //@ close [f]CCSeqInv(this);
     }
 
-    public int addCounter(int limit)
+    /* public int addCounter(int limit)
     {
         return seq.addCounter(limit);
     }

@@ -57,7 +57,7 @@ public class Counter {
      * @param v The value to increment: must be non negative.
      */
     public void incr(int v)
-    //@ requires CounterInv(this, ?value, ?lim, ?over) &*& v >= 0;
+    //@ requires CounterInv(this, ?value, ?lim, ?over) &*& v > 0;
     //@ ensures ((value + v) >= lim) ? (CounterInv(this, (value + v) % lim, lim, true)) : CounterInv(this, value + v, lim, over);
     { 
         if(val + v >= limit){
@@ -73,7 +73,7 @@ public class Counter {
      * @param v The value to decrement.: must be non negative.
      */
     public void decr(int v)
-    //@ requires CounterInv(this, ?value, ?lim, ?over) &*& v >= 0;
+    //@ requires CounterInv(this, ?value, ?lim, ?over) &*& v > 0;
     //@ ensures (value - v < 0) ? (CounterInv(this, 0, lim, true)) : CounterInv(this, value - v, lim, over); 
     { 
         if(val - v < 0) {

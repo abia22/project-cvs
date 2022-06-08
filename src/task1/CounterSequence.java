@@ -173,7 +173,7 @@ public class CounterSequence
      * @param val The value to increment: must be non negative.
      */
     public void increment(int i, int val)
-    //@ requires CounterSeqInv(this, ?l, ?c) &*& i >= 0 &*& i < l &*& val >= 0;
+    //@ requires CounterSeqInv(this, ?l, ?c) &*& i >= 0 &*& i < l &*& val > 0;
     //@ ensures CounterSeqInv(this, l, c);
     {
         this.sequence[i].incr(val);
@@ -186,7 +186,7 @@ public class CounterSequence
      * @param val The value to decrement: must be non negative.
      */
     public void decrement(int i, int val)
-    //@ requires CounterSeqInv(this, ?l, ?c) &*& i >= 0 &*& i < l &*& val >= 0;
+    //@ requires CounterSeqInv(this, ?l, ?c) &*& i >= 0 &*& i < l &*& val > 0;
     //@ ensures CounterSeqInv(this, l, c);
     {
         this.sequence[i].decr(val);
