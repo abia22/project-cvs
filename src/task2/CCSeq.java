@@ -1,19 +1,22 @@
 package task2;
 
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.*;
+import java.util.concurrent.locks.*;
 
-import task1.CounterSequence;
+//import java.util.concurrent.locks.Condition;
+//import java.util.concurrent.locks.ReentrantLock;
+
+import task1.*;
 
 /*@
-    predicate_ctor CounterSeq_shared_state (CCSeq c) () =
-    c.capacity() |-> ?cap &*& cap > 0 &*& c.length() |-> ?l &*& l > 0 &*& l <= cap; <- tem que ter as condicoes todas do CounterSeqInv mas nao sei como aceder ao counters.length
+    predicate_ctor CounterSeq_shared_state (CCSeq ccSeq) () =
+    ccSeq.seq |-> ?seq &*& CounterSeqInv(seq, ?l, ?c);
 
-    predicate_ctor CounterSeq_nonzero (CCSeq c) () =
-    c.capacity() |-> ?cap &*& c.length() |-> ?l &*& cap > 0 &*& l > 0 &*&  l <= cap;
+    predicate_ctor CounterSeq_nonzero (CCSeq ccSeq) () =
+    ccSeq.seq |-> ?seq &*& CounterSeqInv(seq, ?l, ?c) &*& c > 0 &*& l > 0 &*&  l <= c;
 
-    predicate_ctor CounterSeq_noncap (CCSeq c) () =
-    c.capacity() |-> ?cap &*& c.length() |-> ?l &*& l <= cap &*& cap > 0 &*& l >= 0;
+    predicate_ctor CounterSeq_noncap (CCSeq ccSeq) () =
+    ccSeq.seq |-> ?seq &*& CounterSeqInv(seq, ?l, ?c) &*& l <= c &*& c > 0 &*& l >= 0;
 
     predicate CCSeqInv(CCSeq c;) = 
             c.mon |-> ?l
@@ -21,11 +24,11 @@ import task1.CounterSequence;
         &*& lck(l,1, CounterSeq_shared_state(c))
         &*& c.notzero |-> ?cn
         &*& cn !=null
-        &*& cond(cc, CounterSeq_shared_state(c), CounterSeq_nonzero(c))
         &*& c.notcap |-> ?cc
         &*& cc !=null
-        &*& cond(cm, CounterSeq_shared_state(c), CounterSeq_noncap(c));
- *@/
+        &*& cond(cn, CounterSeq_shared_state(c), CounterSeq_nonzero(c))
+        &*& cond(cc, CounterSeq_shared_state(c), CounterSeq_noncap(c));
+ @*/
 
 /**
  * Represents a concurrent sequence of Counter objects.
@@ -33,14 +36,14 @@ import task1.CounterSequence;
 public class CCSeq
 {
 
-    private CounterSequence seq;
+    private final CounterSequence seq;
     ReentrantLock mon;
     Condition notzero;
     Condition notcap;
     
     public CCSeq(int cap)
-    //@ requires cap > 0
-    //@ ensures CCSeqInv(this)
+    //@ requires cap > 0;
+    //@ ensures CCSeqInv(this);
     {
         seq = new CounterSequence(cap);
         //@ close CounterSeq_shared_state(this)();
@@ -60,18 +63,24 @@ public class CCSeq
         //@ open [f]CCSeqInv(this);
         int result;
         mon.lock();
+
         //@ open CounterSeq_shared_state(this)();
-        if(i >= 0 && i < seq.length())
-            //@ close CounterSeq_shared_state(this)();
+        //@ open CounterSeqInv(seq, ?l, ?c);
+	    int length = seq.length();
+
+        if(i >= 0 && i < length)
             result = seq.getCounter(i);
-        else 
+        else
             result = -1;
+
+        //@ close CounterSeq_shared_state(this)();
+            
         mon.unlock();
         return result;
         //@ close [f]CCSeqInv(this);
     }
 
-    public void incr(int i, int val)
+    /* public void incr(int i, int val)
     {
         seq.increment(i, val);
     }
@@ -89,6 +98,6 @@ public class CCSeq
     public void remCounter(int i)
     {
         seq.remCounter(i);
-    }
+    } */
     
 }
