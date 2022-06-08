@@ -16,7 +16,7 @@ import task1.*;
     ccSeq.seq |-> ?seq &*& CounterSeqInv(seq, ?l, ?c) &*& c > 0 &*& l > 0 &*&  l <= c;
 
     predicate_ctor CounterSeq_noncap (CCSeq ccSeq) () =
-    ccSeq.seq |-> ?seq &*& CounterSeqInv(seq, ?l, ?c) &*& l <= c &*& c > 0 &*& l >= 0;
+    ccSeq.seq |-> ?seq &*& CounterSeqInv(seq, ?l, ?c) &*& l < c &*& c > 0 &*& l >= 0;
 
     predicate CCSeqInv(CCSeq c;) = 
             c.mon |-> ?l
@@ -37,9 +37,9 @@ public class CCSeq
 {
 
     private final CounterSequence seq;
-    ReentrantLock mon;
-    Condition notzero;
-    Condition notcap;
+
+    private final ReentrantLock mon;
+    private final Condition notzero, notcap;
     
     public CCSeq(int cap)
     //@ requires cap > 0;
@@ -120,12 +120,49 @@ public class CCSeq
         //@ close [f]CCSeqInv(this);
     }
 
-    /* public int addCounter(int limit)
+    public int addCounter(int limit)
+    //@ requires [?f]CCSeqInv(this) &*& limit > 0;
+    //@ ensures [f]CCSeqInv(this);
     {
-        return seq.addCounter(limit);
+        //@ open CCSeqInv(this);
+        mon.lock();
+
+        //@ open CounterSeq_shared_state(this)();
+
+        //@ open CounterSeqInv(seq, ?l, ?c);
+
+        int length = seq.length();
+        int capacity = seq.capacity();
+
+        while (length == capacity)
+        /*@ invariant [f] this.notzero |-> ?cn
+        &*& cn !=null
+        &*& [f] this.notcap |-> ?cc
+        &*& cc !=null
+        &*& [f] cond(cn, CounterSeq_shared_state(this), CounterSeq_nonzero(this))
+        &*& [f] cond(cc, CounterSeq_shared_state(this), CounterSeq_noncap(this));
+        @*/
+        {
+            //@ close CounterSeq_shared_state(this)();
+            try { notcap.await(); } catch (InterruptedException e) {}
+
+            length = seq.length();
+            capacity = seq.capacity();
+
+            //@ open CounterSeq_noncap(this)();
+        }
+
+        int pos = seq.addCounter(limit);
+        //@ close CounterSeq_nonzero(this)();
+        
+        notzero.signal();
+        mon.unlock();
+        //@ close [f]CCSeqInv(this);
+
+        return pos;
     }
 
-    public void remCounter(int i)
+    /* public void remCounter(int i)
     {
         seq.remCounter(i);
     } */
