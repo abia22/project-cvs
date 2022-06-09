@@ -5,11 +5,14 @@ import task2.*;
 import task2.client.*;
 
 /*@
-predicate LookupRemoveCountersInv(LookupRemoveCounters t) = t.counters |-> ?cc &*& cc != null &*& CCSeqInv(cc);
+predicate LookupRemoveCountersInv(LookupRemoveCounters t;) = t.counters |-> ?cc &*& cc != null &*& [_]CCSeqInv(cc);
 @*/
 
 public class LookupRemoveCounters implements Runnable
 {
+    //@ predicate pre() = LookupRemoveCountersInv(this) &*& [_]System_out(?o) &*& o != null;
+    //@ predicate post() = LookupRemoveCountersInv(this);
+
     public static final int NUM_COUNTERS = 50;
 
     private final CCSeq counters;
@@ -19,7 +22,7 @@ public class LookupRemoveCounters implements Runnable
      */
     public LookupRemoveCounters(CCSeq counters)
     //@ requires counters != null &*& [?f] CCSeqInv(counters);
-    //@ ensures [f] LookupRemoveCountersInv(this);
+    //@ ensures LookupRemoveCountersInv(this);
     {
         this.counters = counters;
     }
@@ -29,17 +32,18 @@ public class LookupRemoveCounters implements Runnable
     //@ ensures post();
     {
         for (int counter = 0; counter < NUM_COUNTERS; counter++)
+        //@ invariant LookupRemoveCountersInv(this) &*& [_]System_out(?o) &*& o != null;
         {
             int value = counters.getCounter(counter);
 
             if (value >= 0)
             {
-                System.out.printf("counter: %d, value: %d\n", counter, value);
+                System.out.println("counter: " + String.valueOf(counter) + ", value: " + String.valueOf(value));
                 counters.remCounter(counter);
             }
             else
             {
-                System.out.printf("Invalid counter: %d\n", counter);
+                System.out.println("Invalid counter: " + String.valueOf(counter));
             }
         }
     }

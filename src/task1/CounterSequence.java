@@ -12,7 +12,7 @@ predicate CounterSeqInv(CounterSequence s; int l, int c) =
         &*& counters.length == c
         &*& l >= 0 &*& c >= l
         &*& array_slice_deep(counters, 0, l, CounterP, unit, _, _)
-        &*& array_slice(counters, l, c,?rest) &*& all_eq(rest, null) == true;
+        &*& array_slice(counters, l, c,?rest);
 @*/
 
 /**
@@ -156,7 +156,7 @@ public class CounterSequence
             &*& array_element(counters, i - 1, null)
             &*& array_slice_deep(counters, 0, i - 1, CounterP, unit, _, _)
             &*& array_slice_deep(counters, i, l, CounterP, unit, _, _)
-            &*& array_slice(counters, l, c,?rest) &*& all_eq(rest, null) == true;
+            &*& array_slice(counters, l, c,?rest);
         @*/
         {
             this.sequence[i - 1] = this.sequence[i];

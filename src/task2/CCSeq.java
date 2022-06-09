@@ -3,9 +3,6 @@ package task2;
 import java.util.concurrent.*;
 import java.util.concurrent.locks.*;
 
-//import java.util.concurrent.locks.Condition;
-//import java.util.concurrent.locks.ReentrantLock;
-
 import task1.*;
 
 /*@
@@ -68,7 +65,7 @@ public class CCSeq
      * @return the value of the counter is position i of the sequence or -1 if the position is invalid.
      */
     public int getCounter(int i)
-    //@ requires [?f]CCSeqInv(this) &*& i >= 0;
+    //@ requires [?f]CCSeqInv(this);
     //@ ensures [f]CCSeqInv(this);
     {
         //@ open [f]CCSeqInv(this);
@@ -79,7 +76,7 @@ public class CCSeq
         //@ open CounterSeqInv(seq, ?l, ?c);
 	    int length = seq.length();
 
-        if(i < length)
+        if(i >= 0 && i < length)
             result = seq.getCounter(i);
         else
             result = -1;
@@ -98,7 +95,7 @@ public class CCSeq
      * @param val The value to increment: must be positive.
      */
     public void incr(int i, int val)
-    //@ requires [?f]CCSeqInv(this) &*& i >= 0 &*& val > 0;
+    //@ requires [?f]CCSeqInv(this);
     //@ ensures [f]CCSeqInv(this);
     {
         //@ open [f]CCSeqInv(this);
@@ -108,7 +105,7 @@ public class CCSeq
         //@ open CounterSeqInv(seq, ?l, ?c);
 	    int length = seq.length();
 
-        if(i >= 0 && i < length)
+        if(i >= 0 && i < length && val > 0)
             seq.increment(i, val);
 
         //@ close CounterSeq_shared_state(this)();
@@ -124,7 +121,7 @@ public class CCSeq
      * @param val The value to decrement: must be positive.
      */
     public void decr(int i, int val)
-    //@ requires [?f]CCSeqInv(this) &*& i >= 0 &*& val > 0;
+    //@ requires [?f]CCSeqInv(this);
     //@ ensures [f]CCSeqInv(this);
     {
         //@ open [f]CCSeqInv(this);
@@ -134,7 +131,7 @@ public class CCSeq
         //@ open CounterSeqInv(seq, ?l, ?c);
 	    int length = seq.length();
 
-        if(i >= 0 && i < length)
+        if(i >= 0 && i < length && val > 0)
             seq.decrement(i, val);
 
         //@ close CounterSeq_shared_state(this)();
@@ -152,16 +149,21 @@ public class CCSeq
      * @return the index of the added counter.
      */
     public int addCounter(int limit)
-    //@ requires [?f]CCSeqInv(this) &*& limit > 0;
+    //@ requires [?f]CCSeqInv(this);
     //@ ensures [f]CCSeqInv(this);
     {
+        if (limit <= 0)
+            return -1;
+
         //@ open [f]CCSeqInv(this);
         mon.lock();
 
         //@ open CounterSeq_shared_state(this)();
 
         while (seq.length() >= seq.capacity())
-        /*@ invariant this.seq |-> ?sequence &*& sequence != null &*& CounterSeqInv(sequence, ?len, ?cap) &*& [f]this.notzero |-> ?cn
+        /*@ invariant this.seq |-> ?sequence &*& sequence != null
+        &*& CounterSeqInv(sequence, ?len, ?cap)
+        &*& [f]this.notzero |-> ?cn
         &*& cn !=null
         &*& [f]this.notcap |-> ?cc
         &*& cc !=null
@@ -198,9 +200,12 @@ public class CCSeq
      * @param pos The position of the counter in the sequence to remove.
      */
     public void remCounter(int i)
-    //@ requires [?f]CCSeqInv(this) &*& i >= 0;
+    //@ requires [?f]CCSeqInv(this);
     //@ ensures [f]CCSeqInv(this);
     {
+        if (i < 0)
+            return;
+
         //@ open [f]CCSeqInv(this);
         mon.lock();
 
