@@ -12,7 +12,7 @@ predicate CounterSeqInv(CounterSequence s; int l, int c) =
         &*& counters.length == c
         &*& l >= 0 &*& c >= l
         &*& array_slice_deep(counters, 0, l, CounterP, unit, _, _)
-        &*& array_slice(counters, l, c,?rest) &*& all_eq(rest, null) == true;
+        &*& array_slice(counters, l, c,?rest);
 @*/
 
 /**
@@ -27,7 +27,7 @@ public class CounterSequence
     
     /**
      * Create a sequence of Counter objects with the specified capacity.
-     * @param cap The capacity of the sequence of Counters: must be non negative.
+     * @param cap The capacity of the sequence of Counters: must be positive.
      */
     public CounterSequence(int cap)
     //@ requires cap > 0;
@@ -104,7 +104,7 @@ public class CounterSequence
      * assuming the sequence is not at maximum capacity.
      * New counters always start with value 0.
      * 
-     * @param limit The limit of the new counter: must be greater than 0.
+     * @param limit The limit of the new counter: must be positive.
      * @return the index of the added counter.
      */
     public int addCounter(int limit)
@@ -156,7 +156,7 @@ public class CounterSequence
             &*& array_element(counters, i - 1, null)
             &*& array_slice_deep(counters, 0, i - 1, CounterP, unit, _, _)
             &*& array_slice_deep(counters, i, l, CounterP, unit, _, _)
-            &*& array_slice(counters, l, c,?rest) &*& all_eq(rest, null) == true;
+            &*& array_slice(counters, l, c,?rest);
         @*/
         {
             this.sequence[i - 1] = this.sequence[i];
@@ -170,10 +170,10 @@ public class CounterSequence
      * Increment the value of the counter by val in the given position of the sequence.
      * 
      * @param i The position of the counter in the sequence: must be between 0 and {@link #length()} (exclusive).
-     * @param val The value to increment: must be non negative.
+     * @param val The value to increment: must be positive.
      */
     public void increment(int i, int val)
-    //@ requires CounterSeqInv(this, ?l, ?c) &*& i >= 0 &*& i < l &*& val >= 0;
+    //@ requires CounterSeqInv(this, ?l, ?c) &*& i >= 0 &*& i < l &*& val > 0;
     //@ ensures CounterSeqInv(this, l, c);
     {
         this.sequence[i].incr(val);
@@ -183,10 +183,10 @@ public class CounterSequence
      * Decrement the value of the counter by val in the given position of the sequence.
      * 
      * @param i The position of the counter in the sequence: must be between 0 and {@link #length()} (exclusive).
-     * @param val The value to decrement: must be non negative.
+     * @param val The value to decrement: must be positive.
      */
     public void decrement(int i, int val)
-    //@ requires CounterSeqInv(this, ?l, ?c) &*& i >= 0 &*& i < l &*& val >= 0;
+    //@ requires CounterSeqInv(this, ?l, ?c) &*& i >= 0 &*& i < l &*& val > 0;
     //@ ensures CounterSeqInv(this, l, c);
     {
         this.sequence[i].decr(val);
