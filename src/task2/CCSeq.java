@@ -10,13 +10,13 @@ import task1.*;
 
 /*@
     predicate_ctor CounterSeq_shared_state (CCSeq ccSeq) () =
-    ccSeq.seq |-> ?seq &*& CounterSeqInv(seq, ?l, ?c);
+    ccSeq.seq |-> ?seq &*& seq != null &*& CounterSeqInv(seq, ?l, ?c);
 
     predicate_ctor CounterSeq_nonzero (CCSeq ccSeq) () =
-    ccSeq.seq |-> ?seq &*& CounterSeqInv(seq, ?l, ?c) &*& c > 0 &*& l > 0 &*&  l <= c;
+    ccSeq.seq |-> ?seq &*& seq != null &*& CounterSeqInv(seq, ?l, ?c) &*& l > 0;
 
     predicate_ctor CounterSeq_noncap (CCSeq ccSeq) () =
-    ccSeq.seq |-> ?seq &*& CounterSeqInv(seq, ?l, ?c) &*& l < c &*& c > 0 &*& l >= 0;
+    ccSeq.seq |-> ?seq &*& seq != null &*& CounterSeqInv(seq, ?l, ?c) &*& l < c;
 
     predicate CCSeqInv(CCSeq c;) = 
             c.mon |-> ?l
@@ -35,7 +35,6 @@ import task1.*;
  */
 public class CCSeq
 {
-
     private final CounterSequence seq;
 
     private final ReentrantLock mon;
@@ -124,35 +123,30 @@ public class CCSeq
     //@ requires [?f]CCSeqInv(this) &*& limit > 0;
     //@ ensures [f]CCSeqInv(this);
     {
-        //@ open CCSeqInv(this);
+        //@ open [f]CCSeqInv(this);
         mon.lock();
 
         //@ open CounterSeq_shared_state(this)();
 
-        //@ open CounterSeqInv(seq, ?l, ?c);
-
-        int length = seq.length();
-        int capacity = seq.capacity();
-
-        while (length == capacity)
-        /*@ invariant [f] this.notzero |-> ?cn
+        while (seq.length() >= seq.capacity())
+        /*@ invariant this.seq |-> ?sequence &*& sequence != null &*& CounterSeqInv(sequence, ?len, ?cap) &*& [f]this.notzero |-> ?cn
         &*& cn !=null
-        &*& [f] this.notcap |-> ?cc
+        &*& [f]this.notcap |-> ?cc
         &*& cc !=null
-        &*& [f] cond(cn, CounterSeq_shared_state(this), CounterSeq_nonzero(this))
-        &*& [f] cond(cc, CounterSeq_shared_state(this), CounterSeq_noncap(this));
+        &*& [f]cond(cn, CounterSeq_shared_state(this), CounterSeq_nonzero(this))
+        &*& [f]cond(cc, CounterSeq_shared_state(this), CounterSeq_noncap(this));
         @*/
         {
             //@ close CounterSeq_shared_state(this)();
             try { notcap.await(); } catch (InterruptedException e) {}
 
-            length = seq.length();
-            capacity = seq.capacity();
-
             //@ open CounterSeq_noncap(this)();
         }
 
+        //@ open CounterSeqInv(seq, len, cap);
         int pos = seq.addCounter(limit);
+        //@ close CounterSeqInv(seq, len + 1, cap);
+
         //@ close CounterSeq_nonzero(this)();
         
         notzero.signal();
