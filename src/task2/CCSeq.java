@@ -156,9 +156,46 @@ public class CCSeq
         return pos;
     }
 
-    /* public void remCounter(int i)
+    public void remCounter(int i)
+    //@ requires [?f]CCSeqInv(this) &*& i >= 0;
+    //@ ensures [f]CCSeqInv(this);
     {
-        seq.remCounter(i);
-    } */
-    
+        //@ open [f]CCSeqInv(this);
+        mon.lock();
+
+        //@ open CounterSeq_shared_state(this)();
+
+        while (seq.length() <= 0)
+        /*@ invariant this.seq |-> ?sequence &*& sequence != null
+        &*& CounterSeqInv(sequence, ?len, ?cap)
+        &*& [f]this.notzero |-> ?cn
+        &*& cn !=null
+        &*& [f]this.notcap |-> ?cc
+        &*& cc !=null
+        &*& [f]cond(cn, CounterSeq_shared_state(this), CounterSeq_nonzero(this))
+        &*& [f]cond(cc, CounterSeq_shared_state(this), CounterSeq_noncap(this));
+        @*/
+        {
+            //@ close CounterSeq_shared_state(this)();
+            try { notzero.await(); } catch (InterruptedException e) {}
+
+            //@ open CounterSeq_nonzero(this)();
+        }
+
+        //@ open CounterSeqInv(seq, len, cap);
+        if (i < seq.length())
+        {
+            seq.remCounter(i);
+            //@ close CounterSeqInv(seq, len - 1, cap);
+
+            //@ close CounterSeq_noncap(this)();
+            notcap.signal();
+
+            //@ open CounterSeq_shared_state(this)();
+        }
+        //@ close CounterSeq_shared_state(this)();
+
+        mon.unlock();
+        //@ close [f]CCSeqInv(this);
+    }
 }
