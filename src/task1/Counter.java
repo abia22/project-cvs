@@ -54,7 +54,7 @@ public class Counter {
      * Increment the counter by v.
      * If the final result is greater than or equal to {@link #getLimit()} then overflow is true
      * and the result is set to ( old( {@link #getVal()} ) + v ) % {@link #getLimit()}.
-     * @param v The value to increment: must be non negative.
+     * @param v The value to increment: must be positive.
      */
     public void incr(int v)
     //@ requires CounterInv(this, ?value, ?lim, ?over) &*& v > 0;
@@ -70,7 +70,7 @@ public class Counter {
      /**
      * Decrement the counter by v.
      * If the final result is negative then overflow is true and the result is set to 0.
-     * @param v The value to decrement.: must be non negative.
+     * @param v The value to decrement.: must be positive.
      */
     public void decr(int v)
     //@ requires CounterInv(this, ?value, ?lim, ?over) &*& v > 0;

@@ -40,6 +40,10 @@ public class CCSeq
     private final ReentrantLock mon;
     private final Condition notzero, notcap;
     
+    /**
+     * Create a concurrent sequence of Counter objects with the specified capacity.
+     * @param cap The capacity of the sequence of Counters: must be positive.
+     */
     public CCSeq(int cap)
     //@ requires cap > 0;
     //@ ensures CCSeqInv(this);
@@ -55,8 +59,16 @@ public class CCSeq
         //@ close CCSeqInv(this);
     }
 
+    /**
+     * Get the value of the counter is position i of the sequence.
+     * If i is out of bounds then -1 is returned.
+     * 
+     * @param i The position of the counter in the sequence: must be non negative.
+     * 
+     * @return the value of the counter is position i of the sequence or -1 if the position is invalid.
+     */
     public int getCounter(int i)
-    //@ requires [?f]CCSeqInv(this);
+    //@ requires [?f]CCSeqInv(this) &*& i >= 0;
     //@ ensures [f]CCSeqInv(this);
     {
         //@ open [f]CCSeqInv(this);
@@ -67,7 +79,7 @@ public class CCSeq
         //@ open CounterSeqInv(seq, ?l, ?c);
 	    int length = seq.length();
 
-        if(i >= 0 && i < length)
+        if(i < length)
             result = seq.getCounter(i);
         else
             result = -1;
@@ -79,8 +91,14 @@ public class CCSeq
         //@ close [f]CCSeqInv(this);
     }
 
+    /**
+     * Increment the value of the counter by val in the given position of the sequence.
+     * 
+     * @param i The position of the counter in the sequence: must be non negative.
+     * @param val The value to increment: must be positive.
+     */
     public void incr(int i, int val)
-    //@ requires [?f]CCSeqInv(this) &*& val > 0;
+    //@ requires [?f]CCSeqInv(this) &*& i >= 0 &*& val > 0;
     //@ ensures [f]CCSeqInv(this);
     {
         //@ open [f]CCSeqInv(this);
@@ -99,8 +117,14 @@ public class CCSeq
         //@ close [f]CCSeqInv(this);
     }
 
+    /**
+     * Decrement the value of the counter by val in the given position of the sequence.
+     * 
+     * @param i The position of the counter in the sequence: must be non negative.
+     * @param val The value to decrement: must be positive.
+     */
     public void decr(int i, int val)
-    //@ requires [?f]CCSeqInv(this) &*& val > 0;
+    //@ requires [?f]CCSeqInv(this) &*& i >= 0 &*& val > 0;
     //@ ensures [f]CCSeqInv(this);
     {
         //@ open [f]CCSeqInv(this);
@@ -119,6 +143,14 @@ public class CCSeq
         //@ close [f]CCSeqInv(this);
     }
 
+    /**
+     * Appends a new counter to the end of the sequence with upper-limit given by the parameter limit,
+     * assuming the sequence is not at maximum capacity.
+     * New counters always start with value 0.
+     * 
+     * @param limit The limit of the new counter: must be positive.
+     * @return the index of the added counter.
+     */
     public int addCounter(int limit)
     //@ requires [?f]CCSeqInv(this) &*& limit > 0;
     //@ ensures [f]CCSeqInv(this);
@@ -156,6 +188,15 @@ public class CCSeq
         return pos;
     }
 
+    /**
+     * Remove the counter at the given index of the sequence.
+     * This method is not order preserving because it moves the last element of
+     * the sequence to the position of the removed counter.
+     * 
+     * If pos is invalid then no counter is removed.
+     * 
+     * @param pos The position of the counter in the sequence to remove.
+     */
     public void remCounter(int i)
     //@ requires [?f]CCSeqInv(this) &*& i >= 0;
     //@ ensures [f]CCSeqInv(this);
